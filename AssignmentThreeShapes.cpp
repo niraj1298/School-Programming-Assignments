@@ -47,7 +47,7 @@ class Triangle : public Shape {
         return 3 * length;
     }
 };
-
+//
 
 
 class Square : public Shape {
@@ -102,7 +102,6 @@ void sort_by_area(Shape **low, Shape **high) {
                 low[j] = low[j + 1];
                 low[j + 1] = temp;
             }
-
             }
         }
     }*/
@@ -140,13 +139,13 @@ int main(){
         int random = rand() % 3;
         if (random == 0) {
             shapes[i] = new Triangle();
-            shapes[i]->length = rand() % 10 + 1;
+            shapes[i]->length = rand() % 99 + 1;
         } else if (random == 1) {
             shapes[i] = new Square();
-            shapes[i]->length = rand() % 10 + 1;
+            shapes[i]->length = rand() % 99 + 1;
         } else if (random == 2) {
             shapes[i] = new Circle();
-            shapes[i]->radius = rand() % 10 + 1;
+            shapes[i]->radius = rand() % 99 + 1;
         }
     }
 
@@ -156,6 +155,7 @@ int main(){
     }
     sort_by_circumference(shapes, shapes + 25);
     for (int i = 0; i < 25; i++) {
+
         cout << *shapes[i] << endl;
     }
 
@@ -164,4 +164,3 @@ int main(){
     }
     return 0;
 }
-

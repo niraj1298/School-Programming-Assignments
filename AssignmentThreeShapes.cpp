@@ -13,7 +13,6 @@ class Shape {
     double  get_area (double length);
 
     double  get_circumference(double radius);
-//create an operator overload for << that will print the shape and  the length or radius depending on the shape then the area or circumference depending on the shape
     friend ostream& operator<<(ostream& os, const Shape& shape);
 };
 

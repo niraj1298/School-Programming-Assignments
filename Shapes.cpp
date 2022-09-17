@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 #include <math.h>
+#include <iomanip>
 using namespace std;
 
 class Shape{
@@ -34,15 +35,16 @@ double Shape::get_circumference(){return 2 * M_PI * radius;}
         else if(shape.name == "Square"){
             shapeNum = 2;
         }
+
     switch(shapeNum){
         case 0:
-            os << shape.name<<""<<shape.count<<":  " << shape.radius << " " << shape.get_area()  <<shape.get_circumference();
+            os <<fixed <<setprecision(2) <<shape.name<<""<<shape.count<<":  " << shape.radius << "   "<<shape.get_area()<<"    " <<shape.get_circumference();
             break;
         case 1:
-            os << shape.name <<""<<shape.count<< ":  " << shape.length << " " << shape.get_area() << shape.get_circumference();
+            os  <<fixed <<setprecision(2) << shape.name <<""<<shape.count<< ":  " << shape.length << "   " << shape.get_area() <<"    "   << shape.get_circumference();
             break;
         case 2:
-            os << shape.name<<""<<shape.count<<":  " << shape.length << " " << shape.get_area() << shape.get_circumference();
+            os <<fixed <<setprecision(2) << shape.name<<""<<shape.count<<":  " << shape.length << "   "  << shape.get_area()<<"    "  << shape.get_circumference();
             break;
     }
     return os;
@@ -53,29 +55,32 @@ double Shape::get_circumference(){return 2 * M_PI * radius;}
 class Triangle : public Shape{
 public:
     Triangle() : Shape("Triangle", 0) {}
-    double get_area(){return (sqrt(3)/4) * pow(length, 2);}
-    double get_circumference(){return 3 * length;}
+    double get_area(){return floor((sqrt(3)/4) * pow(length, 2));}
+    double get_circumference(){return floor(3 * length);}
 
 };
 
 class Square : public Shape{
 public:
     Square() : Shape("Square", 0) { }
-    double get_area(){return pow(length, 2);}
-    double get_circumference(){return 4 * length;}
+    double get_area(){return floor(pow(length, 2));}
+    double get_circumference(){return floor(4 * length);}
+
 };
+
+
 
 class Circle : public Shape{
 public:
     Circle() : Shape("Circle", 0) { }
-    double get_area(){return M_PI * pow(radius, 2);}
-    double get_circumference(){return 2 * M_PI * radius;}
+    double get_area(){return floor(M_PI * pow(radius, 2));}
+    double get_circumference(){return floor(2 * M_PI * radius);}
 };
 
 void sort_by_area(Shape **low, Shape **high) {
     Shape *temp;
-    for (int i = 0; i < 10; i++) {
-        for (int j = i + 1; j < 10; j++) {
+    for (int i = 0; i < 25; i++) {
+        for (int j = i + 1; j < 25; j++) {
             if (low[i]->get_area() > low[j]->get_area()) {
                 temp = low[i];
                 low[i] = low[j];
@@ -84,10 +89,13 @@ void sort_by_area(Shape **low, Shape **high) {
         }
     }
 }
+
+
+
 void sort_by_circumference(Shape **low, Shape **high) {
     Shape *temp;
-    for (int i = 0; i < 10; i++) {
-        for (int j = i + 1; j < 10; j++) {
+    for (int i = 0; i < 25; i++) {
+        for (int j = i + 1; j < 25; j++) {
             if (low[i]->get_circumference() > low[j]->get_circumference()) {
                 temp = low[i];
                 low[i] = low[j];
@@ -100,30 +108,44 @@ void sort_by_circumference(Shape **low, Shape **high) {
 
 int main(){
     Shape *shapes[25];
+    int length = sizeof(shapes)/sizeof(shapes[0]);
     for (int i = 0; i < 25; i++) {
         int random = rand() % 3;
         switch (random) {
             case 0:
                 shapes[i] = new Triangle();
-                shapes[i]->length = rand() % 99 + 1;
+                shapes[i]->length = rand() % 100 +1;
                 shapes[i]->count = i;
                 break;
             case 1:
                 shapes[i] = new Square();
-                shapes[i]->length = rand() % 99 + 1;
+                shapes[i]->length = rand() % 100+1;
                 shapes[i]->count = i;
                 break;
             case 2:
                 shapes[i] = new Circle();
-                shapes[i]->radius = rand() % 99 + 1;
+                shapes[i]->radius = rand() % 100+1;
                 shapes[i]->count = i;
                 break;
         }
     }
 
-    sort_by_area(shapes, shapes+25);
+    sort_by_area(shapes, shapes + length-1);
+    for (int i = 0; i < 25; i++) {
+        cout << *shapes[i] << endl;
+    }
+    cout << endl;
+    sort_by_circumference(shapes, shapes + length-1);
+    for (int i = 0; i < 25; i++) {
+        cout << *shapes[i] << endl;
+    }
+    return 0;
+/*
+    sort_by_area(shapes, shapes+length-1);
     cout<< "Shape L/R Area" << endl;
-    for (int i = 0; i < 25; i++) { cout <<*shapes[i] << endl; }
+     for(int i = 0; i < 25; i++) {
+        cout <<*shapes[i] << endl;
+    }
 
 
     cout << endl;
@@ -132,7 +154,7 @@ int main(){
     for (int i = 0; i < 25; i++) { cout <<*shapes[i] << endl; }
 
     for (int i = 0; i < 25; i++) { delete shapes[i]; }
+    return 0;
 
-
-return 0;
+*/
 }

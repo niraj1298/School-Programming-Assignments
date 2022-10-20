@@ -61,7 +61,7 @@ void dualPivotQuickSort(int arr[], int left, int right){
     int p1 = arr[left];
     int p2 = arr[right];
 
-    //If P1 is greater than P2, swap them
+    //If P1 is greater than P2, swap them /*fix */
     if(p1 > p2){
         swap(&p1, &p2);
     }

@@ -2,29 +2,15 @@
 Programming Assignment #5: Dual-Pivot Quicksort( Vladimir Yaroslavskiy's Algorithm )
  Developer: Niraj Nepal
  Date: 11/01/2022
- Description:
- Credits:
+ Description: Implementation of Vladmir Yaroslavskiy's Algorithm for Dual-Pivot Quicksort, then compare it with the built in sort function in C++.
+ Credits: Vladimir Yaroslavskiy's Algorithm for Dual-Pivot Quicksort, C++ Documentation, and StackOverflow ( for helping fix some errors ).
 */
 #include <time.h>
 #include <chrono>
 #include <iostream>
+#include <algorithm>
 using namespace std::chrono;
 using namespace std;
-
-//For this program, you are to implement the dual-pivot quicksort algorithm from class in C++ and to make it as efficient as possible.
-//You are to use the following algorithm as a guide:
-//1. For small arrays (length < 27), use the Insertion sort algorithm.
-//2. Choose two pivot elements P1 and P2. We can get, for example, the first element a[left] as P1 and the last element a[right] as P2.
-//3. P1 must be less than P2, otherwise they are swapped. So, there are the following parts:
-// - part I with indices from left+1 to L–1 with elements, which are less than P1,
-// - part II with indices from L to K–1 with elements, which are greater or equal to P1 and less or equal to P2,
-// - part III with indices from G+1 to right–1 with elements greater than P2,
-// - part IV contains the rest of the elements to be examined with indices from K to G.
-//4. The next element a[K] from the part IV is compared with two pivots P1 and P2, and placed to the corresponding part I, II, or III.
-//5. The pointers L, K, and G are changed in the corresponding directions.
-//6. The steps 4 - 5 are repeated while K ≤ G.
-//7. The pivot element P1 is swapped with the last element from part I, the pivot element P2 is swapped with the first element from part III.
-//8. The steps 1 - 7 are repeated recursively for every part I, part II, and part III.
 
 //Function to swap two elements
 void swap(int *a, int *b){
@@ -79,12 +65,12 @@ void dualPivotQuickSort(int arr[], int left, int right){
             L++;
             K++;
         }
-        //If the element at K is greater than P2, swap it with the element at G and decrement G
+            //If the element at K is greater than P2, swap it with the element at G and decrement G
         else if(arr[K] > p2){
             swap(&arr[K], &arr[G]);
             G--;
         }
-        //If the element at K is greater than or equal to P1 and less than or equal to P2, increment K
+            //If the element at K is greater than or equal to P1 and less than or equal to P2, increment K
         else{
             K++;
         }
@@ -104,14 +90,13 @@ void dualPivotQuickSort(int arr[], int left, int right){
 
 //Driver function
 int main(){
-    //Initialize array
+    cout<<"////////////////////////////////////////////////////////////"<<endl;
+    cout<< "[ Tests 1 - 4 sorted with Dual-Pivot Quicksort Algorithm ]" << endl;
+    cout<<"////////////////////////////////////////////////////////////"<<endl;
+    //test 1 small array
     int arr[] = {5, 3, 8, 4, 2, 7, 1, 10, 6, 9};
     int size = sizeof(arr) / sizeof(arr[0]);
 
-
-    //Print array before sorting
-    cout<< "Array before sorting: ";
-    printArray(arr, size);
 
     auto start = high_resolution_clock::now();
     //Sort array using dual-pivot quicksort algorithm
@@ -119,11 +104,111 @@ int main(){
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
 
-    //Print array after sorting
-    cout<< "Array after sorting: ";
-    printArray(arr, size);
     cout<<endl;
-    cout << duration.count() << " nanoseconds." << endl;
+    cout << "Test 1 Small array: " <<duration.count() << " nanoseconds." << endl;
+
+
+    //test 2 large array
+    int arr2[100000];
+    for(int i = 0; i < 100000; i++){
+        arr2[i] = rand() % 100000;
+    }
+    int size2 = sizeof(arr2) / sizeof(arr2[0]);
+    auto start2 = high_resolution_clock::now();
+    //Sort array using dual-pivot quicksort algorithm
+    dualPivotQuickSort(arr2, 0, size2 - 1);
+    auto stop2 = high_resolution_clock::now();
+    auto duration2 = duration_cast<milliseconds>(stop2 - start2);
+
+    cout << "Test 2 Large array: " << duration2.count() << " milliseconds." << endl;
+
+    //test 3 large with only 0's array
+    int arr3[10000];
+    for(int i = 0; i < 10000; i++){
+        arr3[i] = 0;
+    }
+    int size3 = sizeof(arr3) / sizeof(arr3[0]);
+    auto start3 = high_resolution_clock::now();
+    //Sort array using dual-pivot quicksort algorithm
+    dualPivotQuickSort(arr3, 0, size3 - 1);
+    auto stop3 = high_resolution_clock::now();
+    auto duration3 = duration_cast<microseconds>(stop3 - start3);
+
+    cout << "Test 3 Large array with only 0's: " << duration3.count() << " microseconds." << endl;
+
+    //test 4 large with only 1's array
+    int arr4[10000];
+    for(int i = 0; i < 10000; i++){
+        arr4[i] = 1;
+    }
+    int size4 = sizeof(arr4) / sizeof(arr4[0]);
+    auto start4 = high_resolution_clock::now();
+    //Sort array using dual-pivot quicksort algorithm
+    dualPivotQuickSort(arr4, 0, size4 - 1);
+    auto stop4 = high_resolution_clock::now();
+    auto duration4 = duration_cast<microseconds>(stop4 - start4);
+
+    cout << "Test 4 Large array with only 1's: " << duration4.count() << " microseconds." << endl;
+
+    cout<<endl;
+    cout<<"////////////////////////////////////////////////////////////"<<endl;
+    cout<< "[ Tests 1 - 4 sorted with the built in c++ sorting method ]" << endl;
+    cout<<"////////////////////////////////////////////////////////////"<<endl;
+    cout<<endl;
+
+  //Test 1 with built in c++ sorting method
+    int arr5[] = {5, 3, 8, 4, 2, 7, 1, 10, 6, 9};
+    int size5 = sizeof(arr5) / sizeof(arr5[0]);
+    auto start5 = high_resolution_clock::now();
+    //Sort array using dual-pivot quicksort algorithm
+    sort(arr5, arr5 + size5);
+    auto stop5 = high_resolution_clock::now();
+    auto duration5 = duration_cast<nanoseconds>(stop5 - start5);
+
+    cout << "Test 1 Small array " << duration5.count() << " nanoseconds." << endl;
+
+
+    //Test 2 with built-in c++ sorting method
+    int arr6[100000];
+    for(int i = 0; i < 100000; i++){
+        arr6[i] = rand() % 100000;
+    }
+    int size6 = sizeof(arr6) / sizeof(arr6[0]);
+    auto start6 = high_resolution_clock::now();
+    //Sort array using sorting algorithm
+    sort(arr6, arr6 + size6);
+    auto stop6 = high_resolution_clock::now();
+    auto duration6 = duration_cast<milliseconds>(stop6 - start6);
+
+    cout << "Test 2 Large array: " << duration2.count() << " milliseconds." << endl;
+
+    //Test 3 with built-in c++ sorting method
+    int arr7[10000];
+    for(int i = 0; i < 10000; i++){
+        arr7[i] = 0;
+    }
+    int size7 = sizeof(arr7) / sizeof(arr7[0]);
+    auto start7 = high_resolution_clock::now();
+    //Sort array using sorting algorithm
+    sort(arr7, arr7 + size7);
+    auto stop7 = high_resolution_clock::now();
+    auto duration7 = duration_cast<microseconds>(stop7 - start7);
+
+    cout << "Test 3 Large array with only 0's: " << duration7.count() << " microseconds." << endl;
+
+    //Test 4 with built-in c++ sorting method
+    int arr8[10000];
+    for(int i = 0; i < 10000; i++){
+        arr8[i] = 1;
+    }
+    int size8 = sizeof(arr8) / sizeof(arr8[0]);
+    auto start8 = high_resolution_clock::now();
+    //Sort array using sorting algorithm
+    sort(arr8, arr8 + size8);
+    auto stop8 = high_resolution_clock::now();
+    auto duration8 = duration_cast<microseconds>(stop8 - start8);
+
+    cout << "Test 4 Large array with only 1's: " << duration8.count() << " microseconds." << endl;
 
     return 0;
 }

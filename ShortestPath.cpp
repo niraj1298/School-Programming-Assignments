@@ -8,6 +8,7 @@ NOT FINISHED YET...
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <sstream>
 
 using namespace std;
 
@@ -20,18 +21,20 @@ private:
 public:
     IMaxPQ() {
         pq = new vector<Key>(); //initialize pq
-        pq->insert(pq->begin(), 0); //insert dummy element at 0
+        pq->push_back(0); //insert dummy element at 0
+        map = unordered_map<Key, int>(); //initialize map
     }
 
     IMaxPQ(Key keys[], int n) { //initialize pq with keys
-        pq = new vector<Key>(keys, n); //initialize pq
-        pq->insert(pq->begin(), 0); //insert dummy element at 0
+        pq = new vector<Key>(keys, keys + n); //initialize pq
+        pq->push_back(0); //insert dummy element at 0
+        map = unordered_map<Key, int>(); //initialize map
         N = n;
         for (int k = N / 2; k >= 1; k--) sink(k); //heapify
     }
 
     void print() {
-        for (int i = 1; i <= N; i++) //print pq
+        for (int i = N; i >= 1; i--) //print pq in reverse order
             cout << (*pq)[i] << " ";
         cout << endl;
     }
@@ -47,19 +50,19 @@ public:
         map[(*pq)[k]] = k; //update map
     }
 
-    void sink(int k) {
-        Key x = (*pq)[k];
-        while (2 * k <= N) {
-            int j = 2 * k;
-            if (j < N && CmpKey::compare((*pq)[j], (*pq)[j + 1]) < 0)
-                j++;
-            if (CmpKey::compare(x, (*pq)[j]) >= 0) break;
-            (*pq)[k] = (*pq)[j];
-            map[(*pq)[k]] = k;
-            k = j;
+    void sink(int k) { // move element down heap
+        Key x = (*pq)[k]; // save element to be sunk
+        while (2 * k <= N) { // while there is a left child
+            int j = 2 * k; // left child
+            if (j < N && CmpKey::compare((*pq)[j], (*pq)[j + 1]) < 0) // if right child is larger
+                j++; // right child
+            if (CmpKey::compare(x, (*pq)[j]) >= 0) break;// if x is larger than both children
+            (*pq)[k] = (*pq)[j]; // move child up
+            map[(*pq)[k]] = k;// update map
+            k = j; // move down
         }
-        (*pq)[k] = x;
-        map[(*pq)[k]] = k;
+        (*pq)[k] = x; // insert at proper place
+        map[(*pq)[k]] = k;// update map
     }
     bool isEmpty() { return N == 0; }
     int size() { return N; }
@@ -67,7 +70,7 @@ public:
 
     void insert(Key x) {
         N++;
-        pq->insert(pq->end(), x); //add x, and percolate it up to maintain heap invariant
+        pq->push_back(x); //add x, and percolate it up to maintain heap invariant
         map[(*pq)[N]] = N; //update map
         swim(N);
     }
@@ -81,6 +84,7 @@ public:
         map[(*pq)[N]] = N; //update map
         N--;
         sink(1); //sink new root to maintain heap invariant
+        map[(*pq)[1]] = 1; //update map after every operation on the key
         pq->pop_back(); //remove last element
         return max;
     }
@@ -89,6 +93,7 @@ public:
         int k = map[x]; //get index of x
         swim(k); //swim x to maintain heap invariant
         sink(k); //sink x to maintain heap invariant
+        map[(*pq)[k]] = k; //update map after every operation on the key
     }
 
 };
@@ -116,6 +121,7 @@ public:
         parentEdge = NULL;*/
         neighbors = new vector<Edge_ptr>();
     }
+    void getName() { cout << name << endl; }
     void setMark(bool mark) { this->mark = mark; }
     bool getMark() { return mark; }
     void setPriority(int priority) { this->priority = priority; }
@@ -140,10 +146,12 @@ Vertex_ptr find_vertex(string s) { //look at this again
 
 class CmpVertexPtrs {
 public:
-    static int compare(Vertex_ptr v, const Vertex_ptr w) {
-        return w->getPriority() - v->getPriority();
+    static int compare(Vertex_ptr v, Vertex_ptr w) { //compare two vertex pointers
+        return v->getPriority() - w->getPriority(); //compare priorities
     }
 };
+
+typedef IMaxPQ<Vertex_ptr, CmpVertexPtrs> PriorityQueue;
 
 class Edge {
 public:
@@ -159,10 +167,10 @@ public:
     int getW() { return w; }
 };
 
-void visit(Vertex_ptr v, IMaxPQ<Vertex_ptr, CmpVertexPtrs>& pq);
+void visit(Vertex_ptr v, PriorityQueue pq);
 
 void findSP(Vertex_ptr s, Vertex_ptr d) {
-    IMaxPQ<Vertex_ptr, CmpVertexPtrs> pq; //priority queue
+    PriorityQueue pq; //priority queue
     s->setPriority(0); //set priority of source to 0
     visit(s, pq); //visit source
     while (!pq.isEmpty()) {
@@ -175,13 +183,13 @@ void findSP(Vertex_ptr s, Vertex_ptr d) {
     }
 }
 
-void visit(Vertex_ptr v, IMaxPQ<Vertex_ptr, CmpVertexPtrs>& pq) {
+void visit(Vertex_ptr v, PriorityQueue pq) {
     v->setMark(true); //mark vertex as visited
     for (Edge_ptr p : v->getNeighbors()) {
         Vertex_ptr x = p->getV();
         if (x->getMark()) //if neighbor is visited
             continue; //skip
-        if (!x->getInFringe() || x->getPriority() > v->getPriority() + p->getD() + p->getW()) { //if neighbor is not in fringe or priority of neighbor is greater than priority of vertex + distance to neighbor + wormholes to neighbor) {
+        if (!x->getInFringe() || x->getPriority() > v->getPriority() + p->getD() + p->getW()) { //if neighbor is not in fringe or priority of neighbor is greater than priority of vertex + distance to neighbor + wormholes to neighbor
             x->setPriority(v->getPriority() + p->getD()); //set priority of neighbor
             x->setParentEdge(new Edge(v, p->getD(), p->getW())); //set parent edge of neighbor
             if (!x->getInFringe()) //if neighbor is not in fringe
@@ -193,55 +201,38 @@ void visit(Vertex_ptr v, IMaxPQ<Vertex_ptr, CmpVertexPtrs>& pq) {
     }
 }
 
-int main() {
-    string sourceStr, destStr, vStr, wStr;
-    int n, dt, wmh; //n = number of vertices, dt = distance, wmh = number of wormholes
+void printPath(Vertex_ptr v) {
+    if (v->getParentEdge() == NULL) {
+        v->getName();
+        return;
+    }
+    printPath(v->getParentEdge()->getV());
+    v->getName();
+}
 
-    cin >> n >> sourceStr >> destStr; //get number of vertices, source, and destination
+
+int main() {
+    int n, dt, wmh;
+    string sourceStr, destStr, vStr, wStr;
+    cin >> n >> sourceStr >> destStr; //get maximum number of wormholes and source and destination vertices
 
     Vertex_ptr source = find_vertex(sourceStr); //find source vertex
     Vertex_ptr dest = find_vertex(destStr); //find destination vertex
+    string inputLine;
+    while (getline(cin, inputLine)) {
+        if (inputLine.empty()) {
+            break;
+        }
 
-   /* while (cin >> vStr >> wStr >> dt >> wmh) {
+        stringstream ss(inputLine);
+        ss >> vStr >> wStr >> dt >> wmh;
         Vertex_ptr vv = find_vertex(vStr); //find vertex v
         Vertex_ptr ww = find_vertex(wStr); //find vertex w
         vv->addNeighbor(new Edge(ww, dt, wmh)); //add edge from v to w
         ww->addNeighbor(new Edge(vv, dt, wmh)); //add edge from w to v
     }
-
     findSP(source, dest); //find shortest path from source to destination
     cout << "distance is: " << dest->getPriority() << endl; //print distance
-
     return 0;
-}*/
-
-
-    for(int i = 0; i < n; i++){
-        cin >> vStr >> wStr >> d >> wmh; //get vertex names, distance, and number of wormholes
-        Vertex_ptr v = find_vertex(vStr); //find vertex
-        Vertex_ptr w = find_vertex(wStr); //find vertex
-        v->addNeighbor(new Edge(w, d, wmh)); //add edge to vertex
-        w->addNeighbor(new Edge(v, d, wmh)); //add edge to vertex
-    }
-
-    findSP(source, dest); //find shortest path from source to destination
-
-    if(dest->getParentEdge() == NULL) //if destination has no parent edge
-        cout << "NO" << endl; //print NO
-    else{
-        cout << "YES" << endl; //print YES
-        vector<Edge_ptr> path; //create vector to store path
-        Edge_ptr e = dest->getParentEdge(); //get parent edge of destination
-        while(e != NULL){ //while parent edge is not null
-            path.push_back(e); //add parent edge to path
-            e = e->getV()->getParentEdge(); //get parent edge of parent edge's vertex
-        }
-        for(int i = path.size() - 1; i >= 0; i--){ //print path
-            cout << path[i]->getV()->name << " " << path[i]->getW()->name << " " << path[i]->getD() << " " << path[i]->getW() << endl;
-        }
-    }
-
-    return 0;
-
-}
+}  
 

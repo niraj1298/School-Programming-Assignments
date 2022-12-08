@@ -1,4 +1,8 @@
 /*
+ Developer: Niraj Nepal
+ Date: 12/08/2022
+ Description: Finds Shortest Path from one Star System to another.
+ Credits: Tutor Lucas helped with some errors in the Edge Class.
 NOT FINISHED YET...
 
 */
